@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple LLM Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #chat-container {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            height: 400px;
+            overflow-y: auto;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 70%;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            margin-left: auto;
+        }
+        .bot-message {
+            background-color: #f5f5f5;
+        }
+        #input-container {
+            display: flex;
+            gap: 10px;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple LLM Chat</h1>
+    
+    <select id="model-select">
+        <option value="gpt-4">GPT-4</option>
+        <option value="claude-3">Claude 3</option>
+        <option value="llama-2">Llama 2</option>
+    </select>
+
+    <div id="chat-container"></div>
+    
+    <div id="input-container">
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const modelSelect = document.getElementById('model-select');
+
+        // Handle Enter key press
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            const selectedModel = modelSelect.value;
+            
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            userInput.value = '';
+            
+            // Show loading indicator
+            const loading = addMessage('Thinking...', 'bot');
+            
+            try {
+                // Simulate API call (replace with real API endpoint)
+                const response = await simulateApiCall(selectedModel, message);
+                
+                // Replace loading with actual response
+                replaceMessage(loading, response, 'bot');
+            } catch (error) {
+                replaceMessage(loading, `Error: ${error.message}`, 'bot');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return messageDiv;
+        }
+
+        function replaceMessage(oldElement, newText, sender) {
+            const newElement = document.createElement('div');
+            newElement.className = `message ${sender}-message`;
+            newElement.textContent = newText;
+            chatContainer.replaceChild(newElement, oldElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Simulated API call (replace with actual fetch to your API endpoint)
+        async function simulateApiCall(model, message) {
+            // Simulated delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Simulated responses
+            const responses = {
+                'gpt-4': `Simulated GPT-4 response to: "${message}"`,
+                'claude-3': `Claude 3's answer: ${message.split('').reverse().join('')}`,
+                'llama-2': `Llama 2 response (${message.length} characters received)`
+            };
+            
+            return responses[model] || "No response available";
+        }
+    </script>
+</body>
+</html>
