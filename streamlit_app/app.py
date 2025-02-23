@@ -29,23 +29,23 @@ def get_api_key(model_provider):
     
     return api_key
 
-def get_ai_response(message, selected_model, api_key):
+def get_ai_response(message, model_provider, selected_model, api_key):
     """Get response from selected AI model."""
     try:
-        if "gpt" in selected_model.lower():
+        if model_provider == "OpenAI":
             client = OpenAI()
             client.api_key = api_key
             response = client.chat.completions.create(
                 model=selected_model,
-                messages=[{"role": "user", "content": message}]
+                messages=st.session_state.chat_history
             )
             return response.choices[0].message.content
         
-        elif "claude" in selected_model.lower():
+        elif model_provider == "Anthropic":
             anthropic = Anthropic(api_key=api_key)
             response = anthropic.messages.create(
                 model=selected_model,
-                messages=[{"role": "user", "content": message}]
+                messages=st.session_state.chat_history
             )
             return response.content
         
@@ -105,7 +105,7 @@ def main():
         
         # Get AI response
         with st.spinner("Thinking..."):
-            ai_response = get_ai_response(user_input, selected_model, api_key)
+            ai_response = get_ai_response(user_input, model_provider, selected_model, api_key)
             
             # Add AI response to chat history
             st.session_state.chat_history.append({"role": "assistant", "content": ai_response})
